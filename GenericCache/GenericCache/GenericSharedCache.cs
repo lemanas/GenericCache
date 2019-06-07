@@ -47,7 +47,7 @@ namespace GenericCache
 
         private Guid GenerateKey(TParams requestParams)
         {
-            var enumerableObj = requestParams as System.Collections.IEnumerable;
+            var enumerableObj = requestParams as IEnumerable;
             Guid key;
 
             if (enumerableObj != null)
@@ -61,6 +61,8 @@ namespace GenericCache
                 {
                     if (!IgnoredParameters.Contains(property.Name))
                     {
+                        keyBuilder.Append($"{property.Name}=");
+
                         var value = property.GetValue(requestParams);
                         if (value is IEnumerable enumerable && !(enumerable is string))
                         {
