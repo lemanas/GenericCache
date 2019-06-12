@@ -3,6 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>default</LangVersion>
+    <Authors>Vilius Lastauskas, Donatas Ivanauskas</Authors>
+    <Description>Type safe in memory caching for .NET Core</Description>
+    <Version>0.9.0</Version>
+    <PackageProjectUrl />
+    <RepositoryUrl>https://github.com/lemanas/GenericCache</RepositoryUrl>
+    <PackageTags>Caching, Generic</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
