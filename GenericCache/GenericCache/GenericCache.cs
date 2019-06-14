@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Reflection;
 using GenericCache.Interfaces;
 
 namespace GenericCache
@@ -7,11 +10,17 @@ namespace GenericCache
     {
         private LimitedConcurrentDictionary<long, T> Cache { get; }
         private List<string> IgnoredParameters { get; }
+        private PropertyInfo[] Properties { get; }
+        private Func<TParams, PropertyInfo, object> ExecutableGetter { get; }
 
         public GenericCache(int capacity, List<string> ignoredParameters = null)
         {
             Cache = new LimitedConcurrentDictionary<long, T>(capacity);
             IgnoredParameters = ignoredParameters != null ? new List<string>(ignoredParameters) : new List<string>();
+            Properties = typeof(TParams).GetProperties();
+
+            Expression<Func<TParams, PropertyInfo, object>> getter = (tParams, property) => property.GetValue(tParams);
+            ExecutableGetter = getter.Compile();
         }
 
         public void ClearAll() => Cache.Clear();
@@ -55,11 +64,11 @@ namespace GenericCache
                 }
                 else
                 {
-                    foreach (var property in requestParams.GetType().GetProperties())
+                    foreach (var property in Properties)
                     {
                         if (!IgnoredParameters.Contains(property.Name))
                         {
-                            object propertyValue = property.GetValue(requestParams);
+                            object propertyValue = ExecutableGetter(requestParams, property);
                             if (propertyValue != null)
                                 key = key * 9901 + propertyValue.GetHashCode();
                         }
