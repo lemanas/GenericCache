@@ -5,7 +5,7 @@
     <LangVersion>default</LangVersion>
     <Authors>Vilius Lastauskas, Donatas Ivanauskas</Authors>
     <Description>Type safe in memory caching for .NET Core</Description>
-    <Version>0.9.1</Version>
+    <Version>0.9.2</Version>
     <PackageProjectUrl />
     <RepositoryUrl>https://github.com/lemanas/GenericCache</RepositoryUrl>
     <PackageTags>Caching, Generics</PackageTags>
