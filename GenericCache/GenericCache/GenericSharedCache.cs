@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using GenericCache.Interfaces;
 
@@ -32,12 +33,7 @@ namespace GenericCache
             var key = GenerateKey(requestParams);
             var value = Cache.TryGetValue(key);
 
-            if (value != null)
-            {
-                return value;
-            }
-
-            return default;
+            return value ?? default;
         }
 
         public void TryAdd(TParams tParams, T value)
@@ -64,31 +60,33 @@ namespace GenericCache
             }
             else
             {
-                StringBuilder keyBuilder = new StringBuilder();
+                var keyBuilder = new StringBuilder();
                 foreach (var property in Properties)
                 {
-                    if (!IgnoredParameters.Contains(property.Name))
+                    if (IgnoredParameters.Contains(property.Name))
+                        continue;
+                    keyBuilder.Append($"{property.Name}=");
+
+                    var value = ExecutableGetter(requestParams, property);
+                    if (value is IEnumerable enumerable && !(enumerable is string))
                     {
-                        keyBuilder.Append($"{property.Name}=");
-
-                        var value = ExecutableGetter(requestParams, property);
-                        if (value is IEnumerable enumerable && !(enumerable is string))
+                        string values = "";
+                        foreach (var x in enumerable)
                         {
-                            string values = "";
-                            foreach (var x in enumerable)
-                            {
-                                values += $", {x}";
-                            }
+                            values += $", {x}";
+                        }
 
-                            keyBuilder.Append(values);
-                        }
-                        else
-                        {
-                            keyBuilder.Append(value);
-                        }
+                        keyBuilder.Append(values);
+                    }
+                    else
+                    {
+                        keyBuilder.Append(value);
                     }
                 }
-                key = new Guid(keyBuilder.ToString());
+
+                using SHA1 sha1 = SHA1.Create();
+                byte[] hash = sha1.ComputeHash(Encoding.Default.GetBytes(keyBuilder.ToString()));
+                return new Guid(hash);
             }
 
             return key;

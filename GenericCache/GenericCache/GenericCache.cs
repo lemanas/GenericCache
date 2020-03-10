@@ -66,12 +66,11 @@ namespace GenericCache
                 {
                     foreach (var property in Properties)
                     {
-                        if (!IgnoredParameters.Contains(property.Name))
-                        {
-                            object propertyValue = ExecutableGetter(requestParams, property);
-                            if (propertyValue != null)
-                                key = key * 9901 + propertyValue.GetHashCode();
-                        }
+                        if (IgnoredParameters.Contains(property.Name))
+                            continue;
+                        var propertyValue = ExecutableGetter(requestParams, property);
+                        if (propertyValue != null)
+                            key = key * 9901 + propertyValue.GetHashCode();
                     }
                 }
 
