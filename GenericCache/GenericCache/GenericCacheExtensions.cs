@@ -16,6 +16,8 @@ namespace GenericCache
                 if (result == null)
                 {
                     result = func(tParams);
+                    if (result != null)
+                        store.TryAdd(tParams, result);
                 }
             }
             else
@@ -36,6 +38,8 @@ namespace GenericCache
                 if (result == null)
                 {
                     result = await func(tParams);
+                    if (result != null)
+                        store.TryAdd(tParams, result);
                 }
             }
             else
