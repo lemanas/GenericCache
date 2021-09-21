@@ -1,7 +1,5 @@
-﻿namespace GenericCache.Interfaces
+﻿namespace GenericCache.Interfaces;
+interface IClearable
 {
-    interface IClearable
-    {
-        void ClearAll();
-    }
+    void ClearAll();
 }
