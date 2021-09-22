@@ -23,13 +23,13 @@ public class GenericSharedCache<TParams, T> : GenericCacheBase<TParams, Guid, T>
         else
         {
             var keyBuilder = new StringBuilder();
-            foreach (var property in Properties)
+            foreach (var property in _properties)
             {
-                if (IgnoredParameters.Contains(property.Name))
+                if (_ignoredParameters.Contains(property.Name))
                     continue;
                 keyBuilder.Append($"{property.Name}=");
 
-                var value = ExecutableGetter(requestParams, property);
+                var value = _executableGetter(requestParams, property);
                 if (value is IEnumerable enumerable && !(enumerable is string))
                 {
                     string values = "";

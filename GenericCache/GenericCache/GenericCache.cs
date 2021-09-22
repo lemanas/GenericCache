@@ -15,7 +15,7 @@ public class GenericCache<TParams, T> : GenericCacheBase<TParams, long, T>, ICle
             var enumerableObj = requestParams as System.Collections.IEnumerable;
             long key = 9973;
 
-            if (IsKeyTypeNumericPrimitive)
+            if (_isKeyTypeNumericPrimitive)
             {
                 return key * Convert.ToInt64(requestParams);
             }
@@ -26,11 +26,11 @@ public class GenericCache<TParams, T> : GenericCacheBase<TParams, long, T>, ICle
             }
             else
             {
-                foreach (var property in Properties)
+                foreach (var property in _properties)
                 {
-                    if (IgnoredParameters.Contains(property.Name))
+                    if (_ignoredParameters.Contains(property.Name))
                         continue;
-                    var propertyValue = ExecutableGetter(requestParams, property);
+                    var propertyValue = _executableGetter(requestParams, property);
                     if (propertyValue != null)
                         key = key * 9901 + propertyValue.GetHashCode();
                 }
