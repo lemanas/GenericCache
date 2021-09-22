@@ -1,54 +1,17 @@
 ﻿using System.Collections;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using GenericCache.Interfaces;
 
 namespace GenericCache;
-public class GenericSharedCache<TParams, T> : IClearable, ICache<TParams, T>
+public class GenericSharedCache<TParams, T> : GenericCacheBase<TParams, Guid, T>,  IClearable, ICache<TParams, T>
 {
-    private LimitedConcurrentDictionary<Guid, T> Cache { get; }
-    private List<string> IgnoredParameters { get; }
-    private PropertyInfo[] Properties { get; }
-    private Func<TParams, PropertyInfo, object> ExecutableGetter { get; }
-
-    public GenericSharedCache(int capacity, List<string> ignoredParameters = null)
+    public GenericSharedCache(int? capacity = null, List<string> ignoredParameters = null, int concurrencyLevel = 50)
+        : base(capacity, ignoredParameters, concurrencyLevel)
     {
-        Cache = new LimitedConcurrentDictionary<Guid, T>(capacity);
-        IgnoredParameters = ignoredParameters != null ? new List<string>(ignoredParameters) : new List<string>();
-        Properties = typeof(TParams).GetProperties();
-
-        Expression<Func<TParams, PropertyInfo, object>> getter = (tParams, property) => property.GetValue(tParams);
-        ExecutableGetter = getter.Compile();
     }
 
-    public void ClearAll() => Cache.Clear();
-
-    public T Get(TParams requestParams)
-    {
-        var key = GenerateKey(requestParams);
-        var value = Cache.TryGetValue(key);
-
-        return value ?? default;
-    }
-
-    public void TryAdd(TParams tParams, T value)
-    {
-        var key = GenerateKey(tParams);
-        if (value != null)
-            Cache.TryAdd(key, value);
-    }
-
-    public void Remove(TParams tParams)
-    {
-        var key = GenerateKey(tParams);
-        Cache.TryRemove(key);
-    }
-
-    public long Count() => Cache.Count;
-
-    private Guid GenerateKey(TParams requestParams)
+    protected override Guid GenerateKey(TParams requestParams)
     {
         var enumerableObj = requestParams as IEnumerable;
         Guid key;
