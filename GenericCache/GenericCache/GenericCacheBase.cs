@@ -61,6 +61,13 @@ namespace GenericCache
                 _cache.TryAdd(key, value);
         }
 
+        public void AddOrUpdate(TParams tParams, T value)
+        {
+            TKey key = GenerateKey(tParams);
+            if (value != null)
+                _cache.AddOrUpdate(key, value);
+        }
+
         public void Remove(TParams tParams)
         {
             TKey key = GenerateKey(tParams);
