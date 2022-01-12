@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-
-namespace GenericCache;
+﻿namespace GenericCache;
 public class LimitedConcurrentDictionary<TKey, TValue>
 {
     private readonly ConcurrentDictionary<TKey, TValue> _dictionary;
@@ -12,14 +10,9 @@ public class LimitedConcurrentDictionary<TKey, TValue>
         _keys = new ConcurrentQueue<TKey>();
         _capacity = capacity;
 
-        if (capacity.HasValue)
-        {
-            _dictionary = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel, _capacity.Value);
-        }
-        else
-        {
-            _dictionary = new ConcurrentDictionary<TKey, TValue>();
-        }
+        _dictionary = capacity.HasValue ?
+            new ConcurrentDictionary<TKey, TValue>(concurrencyLevel, _capacity.Value) :
+            new ConcurrentDictionary<TKey, TValue>();
     }
 
     public void TryAdd(TKey key, TValue value)
@@ -34,7 +27,7 @@ public class LimitedConcurrentDictionary<TKey, TValue>
     public void AddOrUpdate(TKey key, TValue value)
     {
         DequeueIfFull(key);
-        _dictionary.AddOrUpdate(key, value, (k, v) => value);
+        _dictionary.AddOrUpdate(key, value, (_, _) => value);
         if (_capacity.HasValue && !_keys.Contains(key))
             _keys.Enqueue(key);
     }

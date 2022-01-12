@@ -6,13 +6,13 @@ namespace GenericCache
 {
     public abstract class GenericCacheBase<TParams, TKey, T> : IClearable, ICache<TParams, T>
     {
-        protected LimitedConcurrentDictionary<TKey, T> _cache;
-        protected List<string> _ignoredParameters;
-        protected PropertyInfo[] _properties;
-        protected Func<TParams, PropertyInfo, object> _executableGetter;
-        protected bool _isKeyTypeNumericPrimitive;
+        protected LimitedConcurrentDictionary<TKey, T> Cache;
+        protected List<string> IgnoredParameters;
+        protected PropertyInfo[] Properties;
+        protected Func<TParams, PropertyInfo, object> ExecutableGetter;
+        protected bool IsKeyTypeNumericPrimitive;
 
-        protected static HashSet<Type> NumericTypes = new HashSet<Type>
+        protected HashSet<Type> NumericTypes = new()
         {
             typeof(byte),
             typeof(sbyte),
@@ -27,24 +27,24 @@ namespace GenericCache
             typeof(decimal)
         };
 
-        public GenericCacheBase(int? capacity = null, List<string> ignoredParameters = null, int concurrencyLevel = 50)
+        protected GenericCacheBase(int? capacity = null, List<string> ignoredParameters = null, int concurrencyLevel = 50)
         {
-            _cache = new LimitedConcurrentDictionary<TKey, T>(capacity, concurrencyLevel);
-            _ignoredParameters = ignoredParameters != null ? new List<string>(ignoredParameters) : new List<string>();
-            _properties = typeof(TParams).GetProperties();
+            Cache = new LimitedConcurrentDictionary<TKey, T>(capacity, concurrencyLevel);
+            IgnoredParameters = ignoredParameters != null ? new List<string>(ignoredParameters) : new List<string>();
+            Properties = typeof(TParams).GetProperties();
 
             Expression<Func<TParams, PropertyInfo, object>> getter = (tParams, property) => property.GetValue(tParams);
-            _executableGetter = getter.Compile();
+            ExecutableGetter = getter.Compile();
 
-            _isKeyTypeNumericPrimitive = NumericTypes.Contains(typeof(TParams));
+            IsKeyTypeNumericPrimitive = NumericTypes.Contains(typeof(TParams));
         }
 
-        public void ClearAll() => _cache.Clear();
+        public void ClearAll() => Cache.Clear();
 
         public T Get(TParams requestParams)
         {
             TKey key = GenerateKey(requestParams);
-            var value = _cache.TryGetValue(key);
+            var value = Cache.TryGetValue(key);
 
             if (value != null)
             {
@@ -58,23 +58,23 @@ namespace GenericCache
         {
             TKey key = GenerateKey(tParams);
             if (value != null)
-                _cache.TryAdd(key, value);
+                Cache.TryAdd(key, value);
         }
 
         public void AddOrUpdate(TParams tParams, T value)
         {
             TKey key = GenerateKey(tParams);
             if (value != null)
-                _cache.AddOrUpdate(key, value);
+                Cache.AddOrUpdate(key, value);
         }
 
         public void Remove(TParams tParams)
         {
             TKey key = GenerateKey(tParams);
-            _cache.TryRemove(key);
+            Cache.TryRemove(key);
         }
 
-        public long Count() => _cache.Count;
+        public long Count() => Cache.Count;
 
         protected abstract TKey GenerateKey(TParams requestParams);
     }

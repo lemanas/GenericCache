@@ -1,10 +1,11 @@
 ﻿namespace GenericCache.Tests;
-public class GenericCacheTests
+
+public class GenericSharedCacheTests
 {
     [Fact]
     public void SimpleTryAdd()
     {
-        var cache = new GenericCache<int, int>();
+        var cache = new GenericSharedCache<int, int>();
         cache.TryAdd(1, 1);
 
         Assert.Equal(1, cache.Count());
@@ -13,7 +14,7 @@ public class GenericCacheTests
     [Fact]
     public void DuplicateTryAdd()
     {
-        var cache = new GenericCache<int, int>();
+        var cache = new GenericSharedCache<int, int>();
         var key = 1;
 
         cache.TryAdd(key, 1);
@@ -27,7 +28,7 @@ public class GenericCacheTests
     [Fact]
     public void SimpleTryAddAndGet()
     {
-        var cache = new GenericCache<int, int>();
+        var cache = new GenericSharedCache<int, int>();
         var key = 1;
         var value = 1;
 
@@ -39,7 +40,7 @@ public class GenericCacheTests
     [Fact]
     public void SimpleAddOrUpdate()
     {
-        var cache = new GenericCache<int, int>();
+        var cache = new GenericSharedCache<int, int>();
         var key = 1;
         var value = 1;
 
@@ -56,7 +57,7 @@ public class GenericCacheTests
     [Fact]
     public void SimpleRemove()
     {
-        var cache = new GenericCache<int, int?>();
+        var cache = new GenericSharedCache<int, int?>();
         cache.TryAdd(1, 10);
         cache.TryAdd(2, 20);
 
@@ -69,7 +70,7 @@ public class GenericCacheTests
     [Fact]
     public void SimpleClear()
     {
-        var cache = new GenericCache<int, int>();
+        var cache = new GenericSharedCache<int, int>();
         cache.TryAdd(1, 10);
         cache.TryAdd(2, 20);
 
@@ -81,7 +82,7 @@ public class GenericCacheTests
     [Fact]
     public void TryAddInLimitedCache()
     {
-        var cache = new GenericCache<int, int?>(2);
+        var cache = new GenericSharedCache<int, int?>(2);
         cache.TryAdd(1, 10);
         cache.TryAdd(2, 20);
         cache.TryAdd(3, 30);
@@ -93,7 +94,7 @@ public class GenericCacheTests
     [Fact]
     public void AddOrUpdateLimitedCache()
     {
-        var cache = new GenericCache<int, int?>(2);
+        var cache = new GenericSharedCache<int, int?>(2);
         cache.AddOrUpdate(1, 10);
         cache.AddOrUpdate(2, 20);
         cache.AddOrUpdate(3, 30);
@@ -111,7 +112,7 @@ public class GenericCacheTests
     [Fact]
     public void ParallelTryAddAndGet()
     {
-        var cache = new GenericCache<int, int?>();
+        var cache = new GenericSharedCache<int, int?>();
         var repetitions = 100000;
 
         Parallel.For(1, repetitions + 1, i => cache.TryAdd(i, i * 10));
@@ -130,7 +131,7 @@ public class GenericCacheTests
         var repetitions = 10000;
         var capacity = 1000;
 
-        var cache = new GenericCache<int, int?>(capacity, concurrencyLevel: repetitions);
+        var cache = new GenericSharedCache<int, int?>(capacity, concurrencyLevel: repetitions);
 
         Parallel.For(1, repetitions + 1, i => cache.TryAdd(i, i * 10));
 
@@ -146,7 +147,7 @@ public class GenericCacheTests
     [Fact]
     public void TryAddWithStringParamType()
     {
-        var cache = new GenericCache<string, int>();
+        var cache = new GenericSharedCache<string, int>();
 
         cache.TryAdd("1", 1);
         Assert.Equal(1, cache.Count());
@@ -155,7 +156,7 @@ public class GenericCacheTests
     [Fact]
     public void TryAddAndGetWithStringParamType()
     {
-        var cache = new GenericCache<string, int>();
+        var cache = new GenericSharedCache<string, int>();
 
         cache.TryAdd("1", 1);
 
@@ -165,7 +166,7 @@ public class GenericCacheTests
     [Fact]
     public void DuplicateTryAddWithStringParamType()
     {
-        var cache = new GenericCache<string, int>();
+        var cache = new GenericSharedCache<string, int>();
 
         var key = "1";
 
@@ -180,7 +181,7 @@ public class GenericCacheTests
     [Fact]
     public void TryAddWithComplexParamType()
     {
-        var cache = new GenericCache<ComplexType, int>();
+        var cache = new GenericSharedCache<ComplexType, int>();
         var key = new ComplexType
         {
             Id = 1,
@@ -195,7 +196,7 @@ public class GenericCacheTests
     [Fact]
     public void TryAddAndGetWithComplexParamType()
     {
-        var cache = new GenericCache<ComplexType, int>();
+        var cache = new GenericSharedCache<ComplexType, int>();
         var key = new ComplexType
         {
             Id = 1,
@@ -211,7 +212,7 @@ public class GenericCacheTests
     [Fact]
     public void DuplicateTryAddAndGetWithComplexParamType()
     {
-        var cache = new GenericCache<ComplexType, int>();
+        var cache = new GenericSharedCache<ComplexType, int>();
 
         var key = new ComplexType
         {
@@ -231,7 +232,7 @@ public class GenericCacheTests
     [Fact]
     public void ComplexTypeKeyGeneration()
     {
-        var cache = new GenericCache<ComplexType, int>();
+        var cache = new GenericSharedCache<ComplexType, int>();
 
         var key = new ComplexType
         {
@@ -257,7 +258,7 @@ public class GenericCacheTests
     [Fact]
     public void EqualityByValueComplexTypeKeyGeneration()
     {
-        var cache = new GenericCache<ComplexType, int>();
+        var cache = new GenericSharedCache<ComplexType, int>();
 
         var key = new ComplexType
         {
@@ -282,7 +283,7 @@ public class GenericCacheTests
     [Fact]
     public void ComplexTypeAsValue()
     {
-        var cache = new GenericCache<int, ComplexType>();
+        var cache = new GenericSharedCache<int, ComplexType>();
 
         var value = new ComplexType
         {
@@ -301,6 +302,24 @@ public class GenericCacheTests
         Assert.Equal(1, cachedValue.Id);
         Assert.Equal("SomeName", cachedValue.Name);
         Assert.Equal("Somewhere", cachedValue.Location);
+    }
+
+    [Fact]
+    public void EnumerableKeyGeneration()
+    {
+        var cache = new GenericSharedCache<int[], int>();
+
+        var key = new[] { 1, 2, 3 };
+        var key2 = new[] { 1, 2, 4 };
+
+        cache.TryAdd(key, 1);
+        cache.TryAdd(key2, 1);
+
+        Assert.Equal(2, cache.Count());
+
+        var cachedValue = cache.Get(key);
+
+        Assert.Equal(1, cachedValue);
     }
 
     private class ComplexType

@@ -1,7 +1,5 @@
-﻿using GenericCache.Interfaces;
-
-namespace GenericCache;
-public class GenericCache<TParams, T> : GenericCacheBase<TParams, long, T>, IClearable, ICache<TParams, T>
+﻿namespace GenericCache;
+public class GenericCache<TParams, T> : GenericCacheBase<TParams, long, T>
 {
     public GenericCache(int? capacity = null, List<string> ignoredParameters = null, int concurrencyLevel = 50) 
         : base(capacity, ignoredParameters, concurrencyLevel)
@@ -15,7 +13,7 @@ public class GenericCache<TParams, T> : GenericCacheBase<TParams, long, T>, ICle
             var enumerableObj = requestParams as System.Collections.IEnumerable;
             long key = 9973;
 
-            if (_isKeyTypeNumericPrimitive)
+            if (IsKeyTypeNumericPrimitive)
             {
                 return key * Convert.ToInt64(requestParams);
             }
@@ -26,11 +24,11 @@ public class GenericCache<TParams, T> : GenericCacheBase<TParams, long, T>, ICle
             }
             else
             {
-                foreach (var property in _properties)
+                foreach (var property in Properties)
                 {
-                    if (_ignoredParameters.Contains(property.Name))
+                    if (IgnoredParameters.Contains(property.Name))
                         continue;
-                    var propertyValue = _executableGetter(requestParams, property);
+                    var propertyValue = ExecutableGetter(requestParams, property);
                     if (propertyValue != null)
                         key = key * 9901 + propertyValue.GetHashCode();
                 }

@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace GenericCache.Tests;
 public class LimitedConcurrentDictionaryTests
 {
