@@ -1,4 +1,8 @@
-﻿namespace GenericCache.Tests;
+﻿using System.Collections.Generic;
+using FluentAssertions;
+
+namespace GenericCache.Tests;
+
 public class GenericCacheTests
 {
     [Fact]
@@ -255,6 +259,31 @@ public class GenericCacheTests
     }
 
     [Fact]
+    public void Test_ComplexTypeKeyGeneration_WithIgnoredParameters()
+    {
+        var cache = new GenericCache<ComplexType, int>(ignoredParameters: new List<string> { "Id" });
+
+        var key = new ComplexType
+        {
+            Id = 1,
+            Name = "SomeName",
+            Location = "Somewhere"
+        };
+
+        var key2 = new ComplexType
+        {
+            Id = 2,
+            Name = "SomeName",
+            Location = "Somewhere"
+        };
+
+        cache.TryAdd(key, 1);
+        cache.TryAdd(key2, 1);
+
+        Assert.Equal(1, cache.Count());
+    }
+
+    [Fact]
     public void EqualityByValueComplexTypeKeyGeneration()
     {
         var cache = new GenericCache<ComplexType, int>();
@@ -298,9 +327,7 @@ public class GenericCacheTests
 
         var cachedValue = cache.Get(1);
 
-        Assert.Equal(1, cachedValue.Id);
-        Assert.Equal("SomeName", cachedValue.Name);
-        Assert.Equal("Somewhere", cachedValue.Location);
+        cachedValue.Should().BeEquivalentTo(value);
     }
 
     private class ComplexType
